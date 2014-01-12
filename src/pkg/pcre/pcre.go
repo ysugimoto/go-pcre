@@ -237,46 +237,64 @@ var nullbyte = []byte{0}
 // Tries to match the speficied byte array slice to the current
 // pattern.  Returns true if the match succeeds.
 func (m *Matcher) Match(subject []byte, flags int) bool {
-	if m.re.ptr == nil {
-		panic("Matcher.Match: uninitialized")
-	}
-	length := len(subject)
-	m.subjects = ""
-	m.subjectb = subject
-	if length == 0 {
-		subject = nullbyte // make first character adressable
-	}
-	subjectptr := (*C.char)(unsafe.Pointer(&subject[0]))
-	return m.match(subjectptr, length, flags)
+	rc := m.Exec(subject, flags)
+  m.matches = matched(rc)
+  return m.matches
 }
 
 // Tries to match the speficied subject string to the current pattern.
 // Returns true if the match succeeds.
 func (m *Matcher) MatchString(subject string, flags int) bool {
-	if m.re.ptr == nil {
-		panic("Matcher.Match: uninitialized")
-	}
-	length := len(subject)
-	m.subjects = subject
-	m.subjectb = nil
-	if length == 0 {
-		subject = "\000" // make first character addressable
-	}
-	// The following is a non-portable kludge to avoid a copy
-	subjectptr := *(**C.char)(unsafe.Pointer(&subject))
-	return m.match(subjectptr, length, flags)
+	rc := m.ExecString(subject, flags)
+  m.matches = matched(rc)
+  return m.matches
 }
 
-func (m *Matcher) match(subjectptr *C.char, length, flags int) bool {
-	rc := C.pcre_exec((*C.pcre)(unsafe.Pointer(&m.re.ptr[0])), nil,
+// Tries to match the speficied byte array slice to the current
+// pattern.  Returns exec result.
+func (m *Matcher) Exec(subject []byte, flags int) int {
+  if m.re.ptr == nil {
+    panic("Matcher.Match: uninitialized")
+  }
+  length := len(subject)
+  m.subjects = ""
+  m.subjectb = subject
+  if length == 0 {
+    subject = nullbyte // make first character adressable
+  }
+  subjectptr := (*C.char)(unsafe.Pointer(&subject[0]))
+  return m.exec(subjectptr, length, flags)
+}
+
+// Tries to match the speficied subject string to the current pattern.
+// Returns exec result.
+func (m *Matcher) ExecString(subject string, flags int) int {
+  if m.re.ptr == nil {
+    panic("Matcher.Match: uninitialized")
+  }
+  length := len(subject)
+  m.subjects = subject
+  m.subjectb = nil
+  if length == 0 {
+    subject = "\000" // make first character addressable
+  }
+  // The following is a non-portable kludge to avoid a copy
+  subjectptr := *(**C.char)(unsafe.Pointer(&subject))
+  return m.exec(subjectptr, length, flags)
+}
+
+func (m *Matcher) exec(subjectptr *C.char, length, flags int) int {
+  rc := C.pcre_exec((*C.pcre)(unsafe.Pointer(&m.re.ptr[0])), nil,
 		subjectptr, C.int(length),
 		0, C.int(flags), &m.ovector[0], C.int(len(m.ovector)))
+  return int(rc)  
+}
+
+func matched(rc int) bool {
 	switch {
 	case rc >= 0:
-		m.matches = true
 		return true
 	case rc == C.PCRE_ERROR_NOMATCH:
-		m.matches = false
 		return false
 	case rc == C.PCRE_ERROR_BADOPTION:
 		panic("PCRE.Match: invalid option flag")

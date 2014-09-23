@@ -7,7 +7,7 @@ import (
 )
 
 func TestCompile(t *testing.T) {
-	var check = func (p string, groups int) {
+	var check = func(p string, groups int) {
 		re, err := Compile(p, 0)
 		if err != nil {
 			t.Error(p, err)
@@ -16,7 +16,7 @@ func TestCompile(t *testing.T) {
 			t.Error(p, g)
 		}
 	}
-	check("",0 )
+	check("", 0)
 	check("^", 0)
 	check("^$", 0)
 	check("()", 1)
@@ -25,7 +25,7 @@ func TestCompile(t *testing.T) {
 }
 
 func TestCompileFail(t *testing.T) {
-	var check = func (p, msg string, off int) {
+	var check = func(p, msg string, off int) {
 		_, err := Compile(p, 0)
 		switch {
 		case err == nil:
@@ -47,7 +47,7 @@ func strings(b [][]byte) (r []string) {
 	r = make([]string, len(b))
 	for i, v := range b {
 		r[i] = string(v)
-	} 
+	}
 	return
 }
 
@@ -91,7 +91,7 @@ func checkmatch1(t *testing.T, dostring bool, m *Matcher,
 			t.Error(prefix, pattern, subject, "Matches")
 			return
 		}
-		if m.Groups() != len(args) - 1 {
+		if m.Groups() != len(args)-1 {
 			t.Error(prefix, pattern, subject, "Groups", m.Groups())
 			return
 		}
@@ -136,6 +136,40 @@ func TestMatcher(t *testing.T) {
 	check(`^.*$`, "abc", "abc")
 	check(`^.*$`, "a\000c", "a\000c")
 	check(`^(.*)$`, "a\000c", "a\000c", "a\000c")
+}
+
+func TestPartial(t *testing.T) {
+	re := MustCompile(`^abc`, 0)
+
+	// Check we get a partial match when we should
+	m := re.MatcherString("ab", PARTIAL_SOFT)
+	if !m.Matches() {
+		t.Error("Failed to find any matches")
+	} else if !m.Partial() {
+		t.Error("The match was not partial")
+	}
+
+	// Check we get an exact match when we should
+	m = re.MatcherString("abc", PARTIAL_SOFT)
+	if !m.Matches() {
+		t.Error("Failed to find any matches")
+	} else if m.Partial() {
+		t.Error("Match was partial but should have been exact")
+	}
+
+	m = re.Matcher([]byte("ab"), PARTIAL_SOFT)
+	if !m.Matches() {
+		t.Error("Failed to find any matches")
+	} else if !m.Partial() {
+		t.Error("The match was not partial")
+	}
+
+	m = re.Matcher([]byte("abc"), PARTIAL_SOFT)
+	if !m.Matches() {
+		t.Error("Failed to find any matches")
+	} else if m.Partial() {
+		t.Error("The match was net partial")
+	}
 }
 
 func TestCaseless(t *testing.T) {
@@ -185,7 +219,7 @@ func TestReplaceAll(t *testing.T) {
 	// Don't change at ends.
 	result := re.ReplaceAll([]byte("I like foods."), []byte("car"), 0)
 	if string(result) != "I like cards." {
-		t.Error ("ReplaceAll", result)
+		t.Error("ReplaceAll", result)
 	}
 	// Change at ends.
 	result = re.ReplaceAll([]byte("food fight fools foo"), []byte("car"), 0)

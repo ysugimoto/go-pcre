@@ -1,16 +1,16 @@
 // Copyright (c) 2011 Florian Weimer. All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // * Redistributions of source code must retain the above copyright
 //   notice, this list of conditions and the following disclaimer.
-// 
+//
 // * Redistributions in binary form must reproduce the above copyright
 //   notice, this list of conditions and the following disclaimer in the
 //   documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -61,63 +61,63 @@ import (
 
 // Flags for Compile and Match functions.
 const (
-	ANCHORED = C.PCRE_ANCHORED
-	BSR_ANYCRLF = C.PCRE_BSR_ANYCRLF
-	BSR_UNICODE = C.PCRE_BSR_UNICODE
-	NEWLINE_ANY = C.PCRE_NEWLINE_ANY
+	ANCHORED        = C.PCRE_ANCHORED
+	BSR_ANYCRLF     = C.PCRE_BSR_ANYCRLF
+	BSR_UNICODE     = C.PCRE_BSR_UNICODE
+	NEWLINE_ANY     = C.PCRE_NEWLINE_ANY
 	NEWLINE_ANYCRLF = C.PCRE_NEWLINE_ANYCRLF
-	NEWLINE_CR = C.PCRE_NEWLINE_CR
-	NEWLINE_CRLF = C.PCRE_NEWLINE_CRLF
-	NEWLINE_LF = C.PCRE_NEWLINE_LF
-	NO_UTF8_CHECK = C.PCRE_NO_UTF8_CHECK
+	NEWLINE_CR      = C.PCRE_NEWLINE_CR
+	NEWLINE_CRLF    = C.PCRE_NEWLINE_CRLF
+	NEWLINE_LF      = C.PCRE_NEWLINE_LF
+	NO_UTF8_CHECK   = C.PCRE_NO_UTF8_CHECK
 )
 
 // Flags for Compile functions
 const (
-	CASELESS = C.PCRE_CASELESS
-	DOLLAR_ENDONLY = C.PCRE_DOLLAR_ENDONLY
-	DOTALL = C.PCRE_DOTALL
-	DUPNAMES = C.PCRE_DUPNAMES
-	EXTENDED = C.PCRE_EXTENDED
-	EXTRA = C.PCRE_EXTRA
-	FIRSTLINE = C.PCRE_FIRSTLINE
+	CASELESS          = C.PCRE_CASELESS
+	DOLLAR_ENDONLY    = C.PCRE_DOLLAR_ENDONLY
+	DOTALL            = C.PCRE_DOTALL
+	DUPNAMES          = C.PCRE_DUPNAMES
+	EXTENDED          = C.PCRE_EXTENDED
+	EXTRA             = C.PCRE_EXTRA
+	FIRSTLINE         = C.PCRE_FIRSTLINE
 	JAVASCRIPT_COMPAT = C.PCRE_JAVASCRIPT_COMPAT
-	MULTILINE = C.PCRE_MULTILINE
-	NO_AUTO_CAPTURE = C.PCRE_NO_AUTO_CAPTURE
-	UNGREEDY = C.PCRE_UNGREEDY
-	UTF8 = C.PCRE_UTF8
+	MULTILINE         = C.PCRE_MULTILINE
+	NO_AUTO_CAPTURE   = C.PCRE_NO_AUTO_CAPTURE
+	UNGREEDY          = C.PCRE_UNGREEDY
+	UTF8              = C.PCRE_UTF8
 )
 
 // Flags for Match functions
 const (
-	NOTBOL = C.PCRE_NOTBOL 
-	NOTEOL = C.PCRE_NOTEOL
-	NOTEMPTY = C.PCRE_NOTEMPTY
-	NOTEMPTY_ATSTART = C.PCRE_NOTEMPTY_ATSTART
+	NOTBOL            = C.PCRE_NOTBOL
+	NOTEOL            = C.PCRE_NOTEOL
+	NOTEMPTY          = C.PCRE_NOTEMPTY
+	NOTEMPTY_ATSTART  = C.PCRE_NOTEMPTY_ATSTART
 	NO_START_OPTIMIZE = C.PCRE_NO_START_OPTIMIZE
-	PARTIAL_HARD = C.PCRE_PARTIAL_HARD
-	PARTIAL_SOFT = C.PCRE_PARTIAL_SOFT
+	PARTIAL_HARD      = C.PCRE_PARTIAL_HARD
+	PARTIAL_SOFT      = C.PCRE_PARTIAL_SOFT
 )
 
 // Exec-time and get/set-time error codes
 const (
-  ERROR_NO_MATCH = C.PCRE_ERROR_NOMATCH
-  ERROR_NULL = C.PCRE_ERROR_NULL
-  ERROR_BADOPTION = C.PCRE_ERROR_BADOPTION    
-  ERROR_BADMAGIC = C.PCRE_ERROR_BADMAGIC        
-  ERROR_UNKNOWN_OPCODE = C.PCRE_ERROR_UNKNOWN_OPCODE  
-  ERROR_UNKNOWN_NODE = C.PCRE_ERROR_UNKNOWN_NODE    
-  ERROR_NOMEMORY = C.PCRE_ERROR_NOMEMORY       
-  ERROR_NOSUBSTRING = C.PCRE_ERROR_NOSUBSTRING    
-  ERROR_MATCHLIMIT = C.PCRE_ERROR_MATCHLIMIT   
-  ERROR_CALLOUT = C.PCRE_ERROR_CALLOUT      
-  ERROR_BADUTF8 =  C.PCRE_ERROR_BADUTF8       
-  ERROR_BADUTF16 =  C.PCRE_ERROR_BADUTF16    
-  ERROR_BADUTF32 = C.PCRE_ERROR_BADUTF32      
-  ERROR_BADUTF8_OFFSET = C.PCRE_ERROR_BADUTF8_OFFSET
-  ERROR_BADUTF16_OFFSET = C.PCRE_ERROR_BADUTF16_OFFSET
-  ERROR_PARTIAL = C.PCRE_ERROR_PARTIAL
-  ERROR_BADPARTIAL = C.PCRE_ERROR_BADPARTIAL
+	ERROR_NO_MATCH        = C.PCRE_ERROR_NOMATCH
+	ERROR_NULL            = C.PCRE_ERROR_NULL
+	ERROR_BADOPTION       = C.PCRE_ERROR_BADOPTION
+	ERROR_BADMAGIC        = C.PCRE_ERROR_BADMAGIC
+	ERROR_UNKNOWN_OPCODE  = C.PCRE_ERROR_UNKNOWN_OPCODE
+	ERROR_UNKNOWN_NODE    = C.PCRE_ERROR_UNKNOWN_NODE
+	ERROR_NOMEMORY        = C.PCRE_ERROR_NOMEMORY
+	ERROR_NOSUBSTRING     = C.PCRE_ERROR_NOSUBSTRING
+	ERROR_MATCHLIMIT      = C.PCRE_ERROR_MATCHLIMIT
+	ERROR_CALLOUT         = C.PCRE_ERROR_CALLOUT
+	ERROR_BADUTF8         = C.PCRE_ERROR_BADUTF8
+	ERROR_BADUTF16        = C.PCRE_ERROR_BADUTF16
+	ERROR_BADUTF32        = C.PCRE_ERROR_BADUTF32
+	ERROR_BADUTF8_OFFSET  = C.PCRE_ERROR_BADUTF8_OFFSET
+	ERROR_BADUTF16_OFFSET = C.PCRE_ERROR_BADUTF16_OFFSET
+	ERROR_PARTIAL         = C.PCRE_ERROR_PARTIAL
+	ERROR_BADPARTIAL      = C.PCRE_ERROR_BADPARTIAL
 )
 
 // A reference to a compiled regular expression.
@@ -159,7 +159,7 @@ func Compile(pattern string, flags int) (Regexp, *CompileError) {
 		return Regexp{}, &CompileError{
 			Pattern: pattern,
 			Message: "NUL byte in pattern",
-			Offset: clen,
+			Offset:  clen,
 		}
 	}
 	var errptr *C.char
@@ -167,9 +167,9 @@ func Compile(pattern string, flags int) (Regexp, *CompileError) {
 	ptr := C.pcre_compile(pattern1, C.int(flags), &errptr, &erroffset, nil)
 	if ptr == nil {
 		return Regexp{}, &CompileError{
-		        Pattern: pattern,
-		        Message: C.GoString(errptr),
-		        Offset: int(erroffset),
+			Pattern: pattern,
+			Message: C.GoString(errptr),
+			Offset:  int(erroffset),
 		}
 	}
 	return toheap(ptr), nil
@@ -196,12 +196,13 @@ func (re Regexp) Groups() int {
 // They can be created by the Matcher and MatcherString functions,
 // or they can be initialized with Reset or ResetString.
 type Matcher struct {
-	re Regexp
-	groups int
-	ovector []C.int		// scratch space for capture offsets
-	matches bool		// last match was successful
-	subjects string // one of these fields is set to record the subject,
-	subjectb []byte // so that Group/GroupString can return slices
+	re       Regexp
+	groups   int
+	ovector  []C.int // scratch space for capture offsets
+	matches  bool    // last match was successful
+	partial  bool    // was the last match a partial match?
+	subjects string  // one of these fields is set to record the subject,
+	subjectb []byte  // so that Group/GroupString can return slices
 }
 
 // Returns a new matcher object, with the byte array slice as a
@@ -259,61 +260,63 @@ var nullbyte = []byte{0}
 // pattern.  Returns true if the match succeeds.
 func (m *Matcher) Match(subject []byte, flags int) bool {
 	rc := m.Exec(subject, flags)
-  m.matches = matched(rc)
-  return m.matches
+	m.matches = matched(rc)
+	m.partial = (rc == C.PCRE_ERROR_PARTIAL)
+	return m.matches
 }
 
 // Tries to match the speficied subject string to the current pattern.
 // Returns true if the match succeeds.
 func (m *Matcher) MatchString(subject string, flags int) bool {
 	rc := m.ExecString(subject, flags)
-  m.matches = matched(rc)
-  return m.matches
+	m.matches = matched(rc)
+	m.partial = (rc == ERROR_PARTIAL)
+	return m.matches
 }
 
 // Tries to match the speficied byte array slice to the current
 // pattern.  Returns exec result.
 func (m *Matcher) Exec(subject []byte, flags int) int {
-  if m.re.ptr == nil {
-    panic("Matcher.Match: uninitialized")
-  }
-  length := len(subject)
-  m.subjects = ""
-  m.subjectb = subject
-  if length == 0 {
-    subject = nullbyte // make first character adressable
-  }
-  subjectptr := (*C.char)(unsafe.Pointer(&subject[0]))
-  return m.exec(subjectptr, length, flags)
+	if m.re.ptr == nil {
+		panic("Matcher.Match: uninitialized")
+	}
+	length := len(subject)
+	m.subjects = ""
+	m.subjectb = subject
+	if length == 0 {
+		subject = nullbyte // make first character adressable
+	}
+	subjectptr := (*C.char)(unsafe.Pointer(&subject[0]))
+	return m.exec(subjectptr, length, flags)
 }
 
 // Tries to match the speficied subject string to the current pattern.
 // Returns exec result.
 func (m *Matcher) ExecString(subject string, flags int) int {
-  if m.re.ptr == nil {
-    panic("Matcher.Match: uninitialized")
-  }
-  length := len(subject)
-  m.subjects = subject
-  m.subjectb = nil
-  if length == 0 {
-    subject = "\000" // make first character addressable
-  }
-  // The following is a non-portable kludge to avoid a copy
-  subjectptr := *(**C.char)(unsafe.Pointer(&subject))
-  return m.exec(subjectptr, length, flags)
+	if m.re.ptr == nil {
+		panic("Matcher.Match: uninitialized")
+	}
+	length := len(subject)
+	m.subjects = subject
+	m.subjectb = nil
+	if length == 0 {
+		subject = "\000" // make first character addressable
+	}
+	// The following is a non-portable kludge to avoid a copy
+	subjectptr := *(**C.char)(unsafe.Pointer(&subject))
+	return m.exec(subjectptr, length, flags)
 }
 
 func (m *Matcher) exec(subjectptr *C.char, length, flags int) int {
-  rc := C.pcre_exec((*C.pcre)(unsafe.Pointer(&m.re.ptr[0])), nil,
+	rc := C.pcre_exec((*C.pcre)(unsafe.Pointer(&m.re.ptr[0])), nil,
 		subjectptr, C.int(length),
 		0, C.int(flags), &m.ovector[0], C.int(len(m.ovector)))
-  return int(rc)  
+	return int(rc)
 }
 
 func matched(rc int) bool {
 	switch {
-	case rc >= 0:
+	case rc >= 0 || rc == C.PCRE_ERROR_PARTIAL:
 		return true
 	case rc == C.PCRE_ERROR_NOMATCH:
 		return false
@@ -330,6 +333,13 @@ func (m *Matcher) Matches() bool {
 	return m.matches
 }
 
+// Returns true if a previous call to Matcher, MatcherString, Reset,
+// ResetString, Match or MatchString found a partial match.  Not really
+// an ideal interface but good enough for our current needs.
+func (m *Matcher) Partial() bool {
+	return m.partial
+}
+
 // Returns the number of groups in the current pattern.
 func (m *Matcher) Groups() int {
 	return m.groups
@@ -340,7 +350,7 @@ func (m *Matcher) Groups() int {
 // Match, or MatchString).  Group numbers start at 1.  A capture group
 // can be present and match the empty string.
 func (m *Matcher) Present(group int) bool {
-	return m.ovector[2 * group] >= 0
+	return m.ovector[2*group] >= 0
 }
 
 // Returns the numbered capture group of the last match (performed by
@@ -349,8 +359,8 @@ func (m *Matcher) Present(group int) bool {
 // the first actual capture group is numbered 1.  Capture groups which
 // are not present return a nil slice.
 func (m *Matcher) Group(group int) []byte {
-	start := m.ovector[2 * group]
-	end := m.ovector[2 * group + 1]
+	start := m.ovector[2*group]
+	end := m.ovector[2*group+1]
 	if start >= 0 {
 		if m.subjectb != nil {
 			return m.subjectb[start:end]
@@ -365,8 +375,8 @@ func (m *Matcher) Group(group int) []byte {
 // actual capture group is numbered 1.  Capture groups which are not
 // present return an empty string.
 func (m *Matcher) GroupString(group int) string {
-	start := m.ovector[2 * group]
-	end := m.ovector[2 * group + 1]
+	start := m.ovector[2*group]
+	end := m.ovector[2*group+1]
 	if start >= 0 {
 		if m.subjectb != nil {
 			return string(m.subjectb[start:end])
@@ -425,10 +435,10 @@ func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 	m := re.Matcher(bytes, 0)
 	r := []byte{}
 	for m.Match(bytes, flags) {
-		r = append (append (r, bytes[:m.ovector[0]]...), repl...)
+		r = append(append(r, bytes[:m.ovector[0]]...), repl...)
 		bytes = bytes[m.ovector[1]:]
 	}
-	return append (r, bytes...)
+	return append(r, bytes...)
 }
 
 // A compilation error, as returned by the Compile function.  The
@@ -437,7 +447,7 @@ func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 type CompileError struct {
 	Pattern string
 	Message string
-	Offset int
+	Offset  int
 }
 
 func (e *CompileError) String() string {

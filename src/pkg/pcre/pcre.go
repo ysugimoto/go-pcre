@@ -392,6 +392,10 @@ func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 	return append (r, bytes...)
 }
 
+func (re Regexp) ReplaceAllString(in, repl string, flags int) string {
+	return string(re.ReplaceAll([]byte(in), []byte(repl), flags))
+}
+
 // A compilation error, as returned by the Compile function.  The
 // offset is the byte position in the pattern string at which the
 // error was detected.
@@ -401,6 +405,6 @@ type CompileError struct {
 	Offset int
 }
 
-func (e *CompileError) String() string {
+func (e *CompileError) Error() string {
 	return e.Pattern + " (" + strconv.Itoa(e.Offset) + "): " + e.Message
 }

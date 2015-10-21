@@ -131,7 +131,7 @@ func toheap(ptr *C.pcre) (re Regexp) {
 
 // Try to compile the pattern.  If an error occurs, the second return
 // value is non-nil.
-func Compile(pattern string, flags int) (Regexp, *CompileError) {
+func Compile(pattern string, flags int) (Regexp, error) {
 	pattern1 := C.CString(pattern)
 	defer C.free(unsafe.Pointer(pattern1))
 	if clen := int(C.strlen(pattern1)); clen != len(pattern) {
@@ -151,7 +151,8 @@ func Compile(pattern string, flags int) (Regexp, *CompileError) {
 		        Offset: int(erroffset),
 		}
 	}
-	return toheap(ptr), nil
+	heap := toheap(ptr)
+	return heap, nil
 }
 
 // Compile the pattern.  If compilation fails, panic.

@@ -1,6 +1,8 @@
 go-pcre
 =======
 
+[![GoDoc](https://godoc.org/github.com/gijsbers/go-pcre?status.svg)](https://godoc.org/github.com/gijsbers/go-pcre)
+
 This is a Go language package providing support for
 Perl Compatible Regular Expressions (PCRE).
 

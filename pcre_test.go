@@ -27,13 +27,16 @@ func TestCompile(t *testing.T) {
 func TestCompileFail(t *testing.T) {
 	var check = func(p, msg string, off int) {
 		_, err := Compile(p, 0)
-		switch {
-		case err == nil:
+		if err == nil {
 			t.Error(p)
-		case err.Message != msg:
-			t.Error(p, "Message", err.Message)
-		case err.Offset != off:
-			t.Error(p, "Offset", err.Offset)
+		} else {
+			cerr := err.(*CompileError)
+			switch {
+			case cerr.Message != msg:
+				t.Error(p, "Message", cerr.Message)
+			case cerr.Offset != off:
+				t.Error(p, "Offset", cerr.Offset)
+			}
 		}
 	}
 	check("(", "missing )", 1)
@@ -150,22 +153,22 @@ func TestCaseless(t *testing.T) {
 }
 
 func TestNamed(t *testing.T) {
-	m := MustCompile("(?<L>a)(?<M>X)*bc(?<DIGITS>\\d*)", 0).
-		MatcherString("abc12", 0)
+	pattern := "(?<L>a)(?<M>X)*bc(?<DIGITS>\\d*)"
+	m := MustCompile(pattern, 0).MatcherString("abc12", 0)
 	if !m.Matches() {
 		t.Error("Matches")
 	}
-	if !m.NamedPresent("L") {
-		t.Error("NamedPresent(\"L\")")
+	if ok, err := m.NamedPresent("L"); !ok || err != nil {
+		t.Errorf("NamedPresent(\"L\"): %v", err)
 	}
-	if m.NamedPresent("M") {
-		t.Error("NamedPresent(\"M\")")
+	if ok, err := m.NamedPresent("M"); ok || err != nil {
+		t.Errorf("NamedPresent(\"M\"): %v", err)
 	}
-	if !m.NamedPresent("DIGITS") {
-		t.Error("NamedPresent(\"DIGITS\")")
+	if ok, err := m.NamedPresent("DIGITS"); !ok || err != nil {
+		t.Errorf("NamedPresent(\"DIGITS\"): %v", err)
 	}
-	if "12" != m.NamedString("DIGITS") {
-		t.Error("NamedString(\"DIGITS\")")
+	if str, err := m.NamedString("DIGITS"); str != "12" || err != nil {
+		t.Errorf("NamedString(\"DIGITS\"): %v", err)
 	}
 }
 
@@ -200,7 +203,7 @@ func TestFindIndex(t *testing.T) {
 func TestExtract(t *testing.T) {
 	re := MustCompile("b(c)(d)", 0)
 	m := re.MatcherString("abcdef", 0)
-	i := m.Extract()
+	i := m.ExtractString()
 	if i[0] != "abcdef" {
 		t.Error("Full line unavailable: ", i[0])
 	}

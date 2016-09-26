@@ -182,15 +182,16 @@ type Matcher struct {
 	subjectb []byte  // so that Group/GroupString can return slices
 }
 
-// Matcher returns a new matcher object, with the byte array slice as a
-// subject.
+// Matcher creates a new matcher object, with the byte slice as subject.
+// It also starts a first match. Obtain the result with Matches().
 func (re Regexp) Matcher(subject []byte, flags int) (m *Matcher) {
 	m = new(Matcher)
 	m.Reset(re, subject, flags)
 	return
 }
 
-// MatcherString returns a new matcher object, with the specified subject string.
+// MatcherString creates a new matcher, with the specified subject string.
+// It also starts a first match. Obtain the result with Matches().
 func (re Regexp) MatcherString(subject string, flags int) (m *Matcher) {
 	m = new(Matcher)
 	m.ResetString(re, subject, flags)
@@ -198,6 +199,7 @@ func (re Regexp) MatcherString(subject string, flags int) (m *Matcher) {
 }
 
 // Reset switches the matcher object to the specified pattern and subject.
+// It also starts a first match. Obtain the result with Matches().
 func (m *Matcher) Reset(re Regexp, subject []byte, flags int) {
 	if re.ptr == nil {
 		panic("Regexp.Matcher: uninitialized")
@@ -206,8 +208,8 @@ func (m *Matcher) Reset(re Regexp, subject []byte, flags int) {
 	m.Match(subject, flags)
 }
 
-// ResetString switches the matcher object to the specified pattern and subject
-// string.
+// ResetString switches the matcher object to the given pattern and subject.
+// It also starts a first match. Obtain the result with Matches().
 func (m *Matcher) ResetString(re Regexp, subject string, flags int) {
 	if re.ptr == nil {
 		panic("Regexp.Matcher: uninitialized")
@@ -439,11 +441,12 @@ func (re *Regexp) FindIndex(bytes []byte, flags int) []int {
 // ReplaceAll returns a copy of a byte slice
 // where all pattern matches are replaced by repl.
 func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
-	m := re.Matcher(bytes, 0)
+	m := re.Matcher(bytes, flags)
 	r := []byte{}
-	for m.Match(bytes, flags) {
+	for m.matches {
 		r = append(append(r, bytes[:m.ovector[0]]...), repl...)
 		bytes = bytes[m.ovector[1]:]
+		m.Match(bytes, flags)
 	}
 	return append(r, bytes...)
 }

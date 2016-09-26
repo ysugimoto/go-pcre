@@ -104,13 +104,13 @@ type Regexp struct {
 }
 
 // Number of bytes in the compiled pattern
-func pcresize(ptr *C.pcre) (size C.size_t) {
+func pcreSize(ptr *C.pcre) (size C.size_t) {
 	C.pcre_fullinfo(ptr, nil, C.PCRE_INFO_SIZE, unsafe.Pointer(&size))
 	return
 }
 
 // Number of capture groups
-func pcregroups(ptr *C.pcre) (count C.int) {
+func pcreGroups(ptr *C.pcre) (count C.int) {
 	C.pcre_fullinfo(ptr, nil,
 		C.PCRE_INFO_CAPTURECOUNT, unsafe.Pointer(&count))
 	return
@@ -119,9 +119,9 @@ func pcregroups(ptr *C.pcre) (count C.int) {
 // Move pattern to the Go heap so that we do not have to use a
 // finalizer.  PCRE patterns are fully relocatable. (We do not use
 // custom character tables.)
-func toheap(ptr *C.pcre) (re Regexp) {
+func toHeap(ptr *C.pcre) (re Regexp) {
 	defer C.free(unsafe.Pointer(ptr))
-	size := pcresize(ptr)
+	size := pcreSize(ptr)
 	re.ptr = make([]byte, size)
 	C.memcpy(unsafe.Pointer(&re.ptr[0]), unsafe.Pointer(ptr), size)
 	return
@@ -149,7 +149,7 @@ func Compile(pattern string, flags int) (Regexp, error) {
 			Offset:  int(erroffset),
 		}
 	}
-	heap := toheap(ptr)
+	heap := toHeap(ptr)
 	return heap, nil
 }
 
@@ -167,7 +167,7 @@ func (re Regexp) Groups() int {
 	if re.ptr == nil {
 		panic("Regexp.Groups: uninitialized")
 	}
-	return int(pcregroups((*C.pcre)(unsafe.Pointer(&re.ptr[0]))))
+	return int(pcreGroups((*C.pcre)(unsafe.Pointer(&re.ptr[0]))))
 }
 
 // Matcher objects provide a place for storing match results.

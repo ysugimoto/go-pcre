@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// This package provides access to the Perl Compatible Regular
+// Package pcre provides access to the Perl Compatible Regular
 // Expresion library, PCRE.
 //
 // It implements two main types, Regexp and Matcher.  Regexp objects
@@ -97,7 +97,7 @@ const (
 	PARTIAL_SOFT      = C.PCRE_PARTIAL_SOFT
 )
 
-// A reference to a compiled regular expression.
+// Regexp holds a reference to a compiled regular expression.
 // Use Compile or MustCompile to create such objects.
 type Regexp struct {
 	ptr []byte
@@ -127,8 +127,8 @@ func toheap(ptr *C.pcre) (re Regexp) {
 	return
 }
 
-// Try to compile the pattern.  If an error occurs, the second return
-// value is non-nil.
+// Compile the pattern and return a compiled regexp.
+// If compilation fails, the second return value holds a *CompileError.
 func Compile(pattern string, flags int) (Regexp, error) {
 	pattern1 := C.CString(pattern)
 	defer C.free(unsafe.Pointer(pattern1))
@@ -153,7 +153,7 @@ func Compile(pattern string, flags int) (Regexp, error) {
 	return heap, nil
 }
 
-// Compile the pattern.  If compilation fails, panic.
+// MustCompile compiles the pattern.  If compilation fails, panic.
 func MustCompile(pattern string, flags int) (re Regexp) {
 	re, err := Compile(pattern, flags)
 	if err != nil {
@@ -162,7 +162,7 @@ func MustCompile(pattern string, flags int) (re Regexp) {
 	return
 }
 
-// Returns the number of capture groups in the compiled pattern.
+// Groups returns the number of capture groups in the compiled pattern.
 func (re Regexp) Groups() int {
 	if re.ptr == nil {
 		panic("Regexp.Groups: uninitialized")
@@ -182,7 +182,7 @@ type Matcher struct {
 	subjectb []byte  // so that Group/GroupString can return slices
 }
 
-// Returns a new matcher object, with the byte array slice as a
+// Matcher returns a new matcher object, with the byte array slice as a
 // subject.
 func (re Regexp) Matcher(subject []byte, flags int) (m *Matcher) {
 	m = new(Matcher)
@@ -190,14 +190,14 @@ func (re Regexp) Matcher(subject []byte, flags int) (m *Matcher) {
 	return
 }
 
-// Returns a new matcher object, with the specified subject string.
+// MatcherString returns a new matcher object, with the specified subject string.
 func (re Regexp) MatcherString(subject string, flags int) (m *Matcher) {
 	m = new(Matcher)
 	m.ResetString(re, subject, flags)
 	return
 }
 
-// Switches the matcher object to the specified pattern and subject.
+// Reset switches the matcher object to the specified pattern and subject.
 func (m *Matcher) Reset(re Regexp, subject []byte, flags int) {
 	if re.ptr == nil {
 		panic("Regexp.Matcher: uninitialized")
@@ -206,7 +206,7 @@ func (m *Matcher) Reset(re Regexp, subject []byte, flags int) {
 	m.Match(subject, flags)
 }
 
-// Switches the matcher object to the specified pattern and subject
+// ResetString switches the matcher object to the specified pattern and subject
 // string.
 func (m *Matcher) ResetString(re Regexp, subject string, flags int) {
 	if re.ptr == nil {
@@ -233,7 +233,7 @@ func (m *Matcher) init(re Regexp) {
 
 var nullbyte = []byte{0}
 
-// Tries to match the speficied byte array slice to the current
+// Match tries to match the speficied byte array slice to the current
 // pattern.  Returns true if the match succeeds.
 func (m *Matcher) Match(subject []byte, flags int) bool {
 	if m.re.ptr == nil {
@@ -249,8 +249,8 @@ func (m *Matcher) Match(subject []byte, flags int) bool {
 	return m.match(subjectptr, length, flags)
 }
 
-// Tries to match the speficied subject string to the current pattern.
-// Returns true if the match succeeds.
+// MatchString tries to match the speficied subject string to
+// the current pattern. Returns true if the match succeeds.
 func (m *Matcher) MatchString(subject string, flags int) bool {
 	if m.re.ptr == nil {
 		panic("Matcher.Match: uninitialized")
@@ -284,18 +284,18 @@ func (m *Matcher) match(subjectptr *C.char, length, flags int) bool {
 		strconv.Itoa(int(rc)))
 }
 
-// Returns true if a previous call to Matcher, MatcherString, Reset,
+// Matches returns true if a previous call to Matcher, MatcherString, Reset,
 // ResetString, Match or MatchString succeeded.
 func (m *Matcher) Matches() bool {
 	return m.matches
 }
 
-// Returns the number of groups in the current pattern.
+// Groups returns the number of groups in the current pattern.
 func (m *Matcher) Groups() int {
 	return m.groups
 }
 
-// Returns true if the numbered capture group is present in the last
+// Present returns true if the numbered capture group is present in the last
 // match (performed by Matcher, MatcherString, Reset, ResetString,
 // Match, or MatchString).  Group numbers start at 1.  A capture group
 // can be present and match the empty string.
@@ -303,7 +303,7 @@ func (m *Matcher) Present(group int) bool {
 	return m.ovector[2*group] >= 0
 }
 
-// Returns the numbered capture group of the last match (performed by
+// Group returns the numbered capture group of the last match (performed by
 // Matcher, MatcherString, Reset, ResetString, Match, or MatchString).
 // Group 0 is the part of the subject which matches the whole pattern;
 // the first actual capture group is numbered 1.  Capture groups which
@@ -320,28 +320,26 @@ func (m *Matcher) Group(group int) []byte {
 	return nil
 }
 
+// ExtractString returns a slice of strings for a single match.
+// The first string contains the complete match.
+// Subsequent strings in the slice contain the captured groups.
+// If there was no match then nil is returned.
 func (m *Matcher) ExtractString() []string {
-	if m.matches {
-		captured_texts := make([]string, m.groups+1)
-		captured_texts[0] = m.subjects
-		//fmt.Printf("capture(%d): %v\n", len(m.subjectb), m.subjects)
-		for i := 1; i < m.groups+1; i++ {
-			start := m.ovector[2*i]
-			end := m.ovector[2*i+1]
-
-			// fmt.Printf("start: %v, end: %v\n", start, end)
-			captured_text := m.subjects[start:end]
-			captured_texts[i] = captured_text
-		}
-
-		return captured_texts
-	} else {
+	if !m.matches {
 		return nil
 	}
+	extract := make([]string, m.groups+1)
+	extract[0] = m.subjects
+	for i := 1; i <= m.groups; i++ {
+		x0 := m.ovector[2*i]
+		x1 := m.ovector[2*i+1]
+		extract[i] = m.subjects[x0:x1]
+	}
+	return extract
 }
 
-// Returns the numbered capture group positions of the last match
-// (performed by Matcher, MatcherString, Reset, ResetString, Match,
+// GroupIndices returns the numbered capture group positions of the last
+// match (performed by Matcher, MatcherString, Reset, ResetString, Match,
 // or MatchString). Group 0 is the part of the subject which matches
 // the whole pattern; the first actual capture group is numbered 1.
 // Capture groups which are not present return a nil slice.
@@ -354,8 +352,8 @@ func (m *Matcher) GroupIndices(group int) []int {
 	return nil
 }
 
-// Returns the numbered capture group as a string.  Group 0 is the
-// part of the subject which matches the whole pattern; the first
+// GroupString returns the numbered capture group as a string.  Group 0
+// is the part of the subject which matches the whole pattern; the first
 // actual capture group is numbered 1.  Capture groups which are not
 // present return an empty string.
 func (m *Matcher) GroupString(group int) string {
@@ -396,40 +394,40 @@ func (m *Matcher) name2index(name string) (int, error) {
 	return group, nil
 }
 
-// Returns the value of the named capture group.  This is a nil slice
+// Named returns the value of the named capture group.  This is a nil slice
 // if the capture group is not present.  Panics if the name does not
 // refer to a group.
 func (m *Matcher) Named(group string) ([]byte, error) {
-	group_num, err := m.name2index(group)
+	groupNum, err := m.name2index(group)
 	if err != nil {
 		return []byte{}, err
 	}
-	return m.Group(group_num), nil
+	return m.Group(groupNum), nil
 }
 
-// Returns the value of the named capture group, or an empty string if
-// the capture group is not present.  Panics if the name does not
-// refer to a group.
+// NamedString returns the value of the named capture group,
+// or an empty string if the capture group is not present.
+// Panics if the name does not refer to a group.
 func (m *Matcher) NamedString(group string) (string, error) {
-	group_num, err := m.name2index(group)
+	groupNum, err := m.name2index(group)
 	if err != nil {
 		return "", err
 	}
-	return m.GroupString(group_num), nil
+	return m.GroupString(groupNum), nil
 }
 
-// Returns true if the named capture group is present.  Panics if the
-// name does not refer to a group.
+// NamedPresent returns true if the named capture group is present.
+// Panics if the name does not refer to a group.
 func (m *Matcher) NamedPresent(group string) (bool, error) {
-	group_num, err := m.name2index(group)
+	groupNum, err := m.name2index(group)
 	if err != nil {
 		return false, err
 	}
-	return m.Present(group_num), nil
+	return m.Present(groupNum), nil
 }
 
-// Return the start and end of the first match, or nil if no match.
-// loc[0] is the start and loc[1] is the end.
+// FindIndex returns the start and end of the first match,
+// or nil if no match.  loc[0] is the start and loc[1] is the end.
 func (re *Regexp) FindIndex(bytes []byte, flags int) []int {
 	m := re.Matcher(bytes, flags)
 	if m.Matches() {
@@ -438,7 +436,8 @@ func (re *Regexp) FindIndex(bytes []byte, flags int) []int {
 	return nil
 }
 
-// Return a copy of a byte slice with pattern matches replaced by repl.
+// ReplaceAll returns a copy of a byte slice
+// where all pattern matches are replaced by repl.
 func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 	m := re.Matcher(bytes, 0)
 	r := []byte{}
@@ -449,19 +448,22 @@ func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 	return append(r, bytes...)
 }
 
+// ReplaceAllString is equivalent to ReplaceAll with string return type.
 func (re Regexp) ReplaceAllString(in, repl string, flags int) string {
 	return string(re.ReplaceAll([]byte(in), []byte(repl), flags))
 }
 
-// A compilation error, as returned by the Compile function.  The
-// offset is the byte position in the pattern string at which the
+// CompileError holds details about a compilation error,
+// as returned by the Compile function.  The offset is
+// the byte position in the pattern string at which the
 // error was detected.
 type CompileError struct {
-	Pattern string
-	Message string
-	Offset  int
+	Pattern string // The failed pattern
+	Message string // The error message
+	Offset  int    // Byte position of error
 }
 
+// Error converts a compile error to a string
 func (e *CompileError) Error() string {
 	return e.Pattern + " (" + strconv.Itoa(e.Offset) + "): " + e.Message
 }

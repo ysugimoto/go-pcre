@@ -1,22 +1,40 @@
-golang-pkg-pcre
-===============
-[![Build Status](https://travis-ci.org/misakwa/golang-pkg-pcre.svg)](https://travis-ci.org/misakwa/golang-pkg-pcre)
+go-pcre
+=======
 
-This is a Go language package providing Perl-Compatible RegularExpression
-support using libpcre++.  Install the package with the current Debian
-distribution as follows:
+This is a Go language package providing Perl-Compatible Regular Expression
+support using libpcre1 or libpcre++.
+
+Installation
+============
+
+Install the package for Debian as follows:
 
     sudo apt-get install libpcre++-dev
-    go get github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre
+    go get github.com/gijsbers/go-pcre/src/pkg/pcre
 
 Go programs that depend on this package should import this package as
 follows to allow automatic downloading:
 
-    import "github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre"
+    import "github.com/gijsbers/go-pcre/src/pkg/pcre"
+
+History
+=======
 
 This is a clone of
 [golang-pkg-pcre](http://git.enyo.de/fw/debian/golang-pkg-pcre.git)
-by Florian Weimer, which has been placed on github so it can be fetched by
-Go's automatic package installer.  The `FindIndex()` and `ReplaceAll()`
-functions were added by Glenn Brown, to mimic functions in Go's default
-regexp package.
+by Florian Weimer, which has been placed on Github by Glenn Brown,
+so it can be fetched automatically by Go's package installer.
+
+Glenn Brown added `FindIndex()` and `ReplaceAll()`
+to mimic functions in Go's default regexp package.
+
+Mathieu Payeur Levallois added `Matcher.ExtractString()`.
+
+Malte Nuhn added `GroupIndices()` to retrieve positions of a matching group.
+
+Chandra Sekar S added `Index()` and stopped invoking `Match()` twice in `FindIndex()`.
+
+Misakwa added support for pkg-config to locate libpcre.
+
+Yann Ramin added ReplaceAllString, `Compile()` returns `error` instead of `CompileError`.
+

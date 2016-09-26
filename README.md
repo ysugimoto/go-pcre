@@ -1,8 +1,8 @@
 go-pcre
 =======
 
-This is a Go language package providing Perl-Compatible Regular Expression
-support using libpcre1 or libpcre++.
+This is a Go language package providing support for
+Perl Compatible Regular Expressions (PCRE).
 
 Installation
 ============
@@ -10,12 +10,12 @@ Installation
 Install the package for Debian as follows:
 
     sudo apt-get install libpcre++-dev
-    go get github.com/gijsbers/go-pcre/src/pkg/pcre
+    go get github.com/gijsbers/go-pcre
 
-Go programs that depend on this package should import this package as
-follows to allow automatic downloading:
+Go programs that depend on this package should import
+this package as follows to allow automatic downloading:
 
-    import "github.com/gijsbers/go-pcre/src/pkg/pcre"
+    import "github.com/gijsbers/go-pcre"
 
 History
 =======
@@ -34,7 +34,6 @@ Malte Nuhn added `GroupIndices()` to retrieve positions of a matching group.
 
 Chandra Sekar S added `Index()` and stopped invoking `Match()` twice in `FindIndex()`.
 
-Misakwa added support for pkg-config to locate libpcre.
+Misakwa added support for `pkg-config` to locate `libpcre`.
 
-Yann Ramin added ReplaceAllString, `Compile()` returns `error` instead of `CompileError`.
-
+Yann Ramin added `ReplaceAllString()` and changed `Compile()` return type to `error`.

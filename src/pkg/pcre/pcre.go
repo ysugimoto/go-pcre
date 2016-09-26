@@ -339,7 +339,20 @@ func (m *Matcher) ExtractString() []string {
 	} else {
 		return nil
 	}
+}
 
+// Returns the numbered capture group positions of the last match
+// (performed by Matcher, MatcherString, Reset, ResetString, Match,
+// or MatchString). Group 0 is the part of the subject which matches
+// the whole pattern; the first actual capture group is numbered 1.
+// Capture groups which are not present return a nil slice.
+func (m *Matcher) GroupIndices(group int) []int {
+	start := m.ovector[2*group]
+	end := m.ovector[2*group+1]
+	if start >= 0 {
+		return []int{int(start), int(end)}
+	}
+	return nil
 }
 
 // Returns the numbered capture group as a string.  Group 0 is the

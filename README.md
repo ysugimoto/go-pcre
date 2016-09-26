@@ -37,3 +37,6 @@ Chandra Sekar S added `Index()` and stopped invoking `Match()` twice in `FindInd
 Misakwa added support for `pkg-config` to locate `libpcre`.
 
 Yann Ramin added `ReplaceAllString()` and changed `Compile()` return type to `error`.
+
+Nikolay Sivko modified `name2index()` to return error instead of panic.
+

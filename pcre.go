@@ -342,9 +342,8 @@ func (m *Matcher) Matches() bool {
 	return m.matches
 }
 
-// Returns true if a previous call to Matcher, MatcherString, Reset,
-// ResetString, Match or MatchString found a partial match.  Not really
-// an ideal interface but good enough for our current needs.
+// Partial returns true if a previous call to Matcher, MatcherString, Reset,
+// ResetString, Match or MatchString found a partial match.
 func (m *Matcher) Partial() bool {
 	return m.partial
 }

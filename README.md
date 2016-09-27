@@ -1,26 +1,25 @@
-go-pcre
-=======
+# go-pcre
 
 [![GoDoc](https://godoc.org/github.com/gijsbers/go-pcre?status.svg)](https://godoc.org/github.com/gijsbers/go-pcre)
 
 This is a Go language package providing support for
 Perl Compatible Regular Expressions (PCRE).
 
-Installation
-============
+## Installation
 
 Install the package for Debian as follows:
 
     sudo apt-get install libpcre++-dev
     go get github.com/gijsbers/go-pcre
 
+## Usage
+
 Go programs that depend on this package should import
 this package as follows to allow automatic downloading:
 
     import "github.com/gijsbers/go-pcre"
 
-History
-=======
+## History
 
 This is a clone of
 [golang-pkg-pcre](http://git.enyo.de/fw/debian/golang-pkg-pcre.git)
@@ -46,3 +45,4 @@ Harry Waye exposed raw `pcre_exec`.
 
 Hazzadous added partial match support.
 
+Pavel Gryaznov added support for JIT compilation.

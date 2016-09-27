@@ -42,3 +42,7 @@ Yann Ramin added `ReplaceAllString()` and changed `Compile()` return type to `er
 
 Nikolay Sivko modified `name2index()` to return error instead of panic.
 
+Harry Waye exposed raw `pcre_exec`.
+
+Hazzadous added partial match support.
+

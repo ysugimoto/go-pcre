@@ -139,6 +139,7 @@ func TestMatcher(t *testing.T) {
 	check(`^.*$`, "abc", "abc")
 	check(`^.*$`, "a\000c", "a\000c")
 	check(`^(.*)$`, "a\000c", "a\000c", "a\000c")
+	check(`def`, "abcdefghi", "def")
 }
 
 func TestPartial(t *testing.T) {
@@ -176,7 +177,7 @@ func TestPartial(t *testing.T) {
 }
 
 func TestCaseless(t *testing.T) {
-	m := MustCompile("abc", CASELESS).MatcherString("Abc", 0)
+	m := MustCompile("abc", CASELESS).MatcherString("...Abc...", 0)
 	if !m.Matches() {
 		t.Error("CASELESS")
 	}

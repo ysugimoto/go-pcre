@@ -276,43 +276,48 @@ type Matcher struct {
 	subjectb []byte  // so that Group/GroupString can return slices
 }
 
-// Matcher creates a new matcher object, with the byte slice as subject.
-// It also starts a first match. Obtain the result with Matches().
-func (re Regexp) Matcher(subject []byte, flags int) (m *Matcher) {
+// NewMatcher creates a new matcher object for the given Regexp.
+func (re Regexp) NewMatcher() (m *Matcher) {
 	m = new(Matcher)
-	m.Reset(re, subject, flags)
+	m.Init(&re)
+	return
+}
+
+// Matcher creates a new matcher object, with the byte slice as subject.
+// It also starts a first match on subject. Test for success with Matches().
+func (re Regexp) Matcher(subject []byte, flags int) (m *Matcher) {
+	m = re.NewMatcher()
+	m.Match(subject, flags)
 	return
 }
 
 // MatcherString creates a new matcher, with the specified subject string.
-// It also starts a first match. Obtain the result with Matches().
+// It also starts a first match on subject. Test for success with Matches().
 func (re Regexp) MatcherString(subject string, flags int) (m *Matcher) {
-	m = new(Matcher)
-	m.ResetString(re, subject, flags)
+	m = re.NewMatcher()
+	m.MatchString(subject, flags)
 	return
 }
 
-// Reset switches the matcher object to the specified pattern and subject.
-// It also starts a first match. Obtain the result with Matches().
-func (m *Matcher) Reset(re Regexp, subject []byte, flags int) {
-	if re.ptr == nil {
-		panic("Regexp.Matcher: uninitialized")
-	}
-	m.init(&re)
-	m.Match(subject, flags)
+// Reset switches the matcher object to the specified regexp and subject.
+// It also starts a first match on subject.
+func (m *Matcher) Reset(re Regexp, subject []byte, flags int) bool {
+	m.Init(&re)
+	return m.Match(subject, flags)
 }
 
-// ResetString switches the matcher object to the given pattern and subject.
-// It also starts a first match. Obtain the result with Matches().
-func (m *Matcher) ResetString(re Regexp, subject string, flags int) {
-	if re.ptr == nil {
-		panic("Regexp.Matcher: uninitialized")
-	}
-	m.init(&re)
-	m.MatchString(subject, flags)
+// ResetString switches the matcher object to the given regexp and subject.
+// It also starts a first match on subject.
+func (m *Matcher) ResetString(re Regexp, subject string, flags int) bool {
+	m.Init(&re)
+	return m.MatchString(subject, flags)
 }
 
-func (m *Matcher) init(re *Regexp) {
+// Init binds an existing Matcher object to the given Regexp.
+func (m *Matcher) Init(re *Regexp) {
+	if re.ptr == nil {
+		panic("Matcher.Init: uninitialized")
+	}
 	m.matches = false
 	if m.re.ptr != nil && &m.re.ptr[0] == &re.ptr[0] {
 		// Skip group count extraction if the matcher has
@@ -372,7 +377,7 @@ func (m *Matcher) Exec(subject []byte, flags int) int {
 }
 
 // ExecString tries to match the specified subject string to
-// the current pattern. Returns the raw pcre_exec error code.
+// the current pattern. It returns the raw pcre_exec error code.
 func (m *Matcher) ExecString(subject string, flags int) int {
 	if m.re.ptr == nil {
 		panic("Matcher.ExecString: uninitialized")
@@ -399,6 +404,7 @@ func (m *Matcher) exec(subjectptr *C.char, length, flags int) int {
 	return int(rc)
 }
 
+// matched checks the return code of a pattern match for success.
 func matched(rc int) bool {
 	switch {
 	case rc >= 0 || rc == C.PCRE_ERROR_PARTIAL:
@@ -408,8 +414,7 @@ func matched(rc int) bool {
 	case rc == C.PCRE_ERROR_BADOPTION:
 		panic("PCRE.Match: invalid option flag")
 	}
-	panic("unexpected return code from pcre_exec: " +
-		strconv.Itoa(int(rc)))
+	panic("unexpected return code from pcre_exec: " + strconv.Itoa(rc))
 }
 
 // Matches returns true if a previous call to Matcher, MatcherString, Reset,
@@ -523,14 +528,15 @@ func (m *Matcher) GroupString(group int) string {
 // Index returns the start and end of the first match, if a previous
 // call to Matcher, MatcherString, Reset, ResetString, Match or
 // MatchString succeeded. loc[0] is the start and loc[1] is the end.
-func (m *Matcher) Index() []int {
+func (m *Matcher) Index() (loc []int) {
 	if !m.matches {
 		return nil
 	}
-
-	return []int{int(m.ovector[0]), int(m.ovector[1])}
+	loc = []int{int(m.ovector[0]), int(m.ovector[1])}
+	return
 }
 
+// name2index converts a group name to its group index number.
 func (m *Matcher) name2index(name string) (int, error) {
 	if m.re.ptr == nil {
 		return 0, fmt.Errorf("Matcher.Named: uninitialized")
@@ -545,9 +551,9 @@ func (m *Matcher) name2index(name string) (int, error) {
 	return group, nil
 }
 
-// Named returns the value of the named capture group.  This is a nil slice
-// if the capture group is not present.  Panics if the name does not
-// refer to a group.
+// Named returns the value of the named capture group.
+// This is a nil slice if the capture group is not present.
+// If the name does not refer to a group then error is non-nil.
 func (m *Matcher) Named(group string) ([]byte, error) {
 	groupNum, err := m.name2index(group)
 	if err != nil {
@@ -558,7 +564,7 @@ func (m *Matcher) Named(group string) ([]byte, error) {
 
 // NamedString returns the value of the named capture group,
 // or an empty string if the capture group is not present.
-// Panics if the name does not refer to a group.
+// If the name does not refer to a group then error is non-nil.
 func (m *Matcher) NamedString(group string) (string, error) {
 	groupNum, err := m.name2index(group)
 	if err != nil {
@@ -568,7 +574,7 @@ func (m *Matcher) NamedString(group string) (string, error) {
 }
 
 // NamedPresent returns true if the named capture group is present.
-// Panics if the name does not refer to a group.
+// If the name does not refer to a group then error is non-nil.
 func (m *Matcher) NamedPresent(group string) (bool, error) {
 	groupNum, err := m.name2index(group)
 	if err != nil {
@@ -579,10 +585,11 @@ func (m *Matcher) NamedPresent(group string) (bool, error) {
 
 // FindIndex returns the start and end of the first match,
 // or nil if no match.  loc[0] is the start and loc[1] is the end.
-func (re *Regexp) FindIndex(bytes []byte, flags int) []int {
+func (re *Regexp) FindIndex(bytes []byte, flags int) (loc []int) {
 	m := re.Matcher(bytes, flags)
 	if m.Matches() {
-		return []int{int(m.ovector[0]), int(m.ovector[1])}
+		loc = []int{int(m.ovector[0]), int(m.ovector[1])}
+		return
 	}
 	return nil
 }

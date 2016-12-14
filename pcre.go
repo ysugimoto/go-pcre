@@ -56,6 +56,7 @@ package pcre
 // #cgo pkg-config: libpcre
 // #include <pcre.h>
 // #include <string.h>
+// #include "./pcre_fallback.h"
 import "C"
 
 import (

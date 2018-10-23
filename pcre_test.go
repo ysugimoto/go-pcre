@@ -315,4 +315,9 @@ func TestFindAll(t *testing.T) {
 			t.Error("Expected location end: ", expected[i].Loc)
 		}
 	}
+
+	matches = re.FindAll("", 0)
+	if len(matches) != 0 {
+		t.Error("Expected no results, got: ", matches)
+	}
 }

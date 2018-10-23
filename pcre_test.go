@@ -290,3 +290,29 @@ func TestFreeRegexp(t *testing.T) {
 	// Check that double calls don't fail.
 	re.FreeRegexp()
 }
+
+func TestFindAll(t *testing.T) {
+	re := MustCompile("\\d{2}x", 0)
+	data := "12x 12332xf 43bx62x"
+	expected := []Match{
+		Match{"12x", []int{0, 3}},
+		Match{"32x", []int{7, 10}},
+		Match{"62x", []int{16, 19}},
+	}
+	matches := re.FindAll(data, 0)
+	if len(matches) != 3 {
+		t.Error("Expected exactly 3 matches")
+	}
+
+	for i := 0; i < len(expected); i++ {
+		if matches[i].Finding != expected[i].Finding {
+			t.Error("Expected to find: ", expected[i].Finding)
+		}
+		if matches[i].Loc[0] != expected[i].Loc[0] {
+			t.Error("Expected location start: ", expected[i].Loc)
+		}
+		if matches[i].Loc[1] != expected[i].Loc[1] {
+			t.Error("Expected location end: ", expected[i].Loc)
+		}
+	}
+}

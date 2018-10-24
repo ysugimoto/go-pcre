@@ -614,11 +614,13 @@ func (re Regexp) FindAll(subject string, flags int) []Match {
 	m := re.MatcherString(subject, flags)
 	offset := 0
 	for m.Matches() {
+		leftIdx := int(m.ovector[0]) + offset
+		rightIdx := int(m.ovector[1]) + offset
 		matches = append(
 			matches,
 			Match{
-				subject[int(m.ovector[0])+offset : int(m.ovector[1])+offset],
-				[]int{int(m.ovector[0]) + offset, int(m.ovector[1]) + offset},
+				subject[leftIdx:rightIdx],
+				[]int{leftIdx, rightIdx},
 			},
 		)
 		offset += int(m.ovector[1])

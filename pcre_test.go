@@ -3,6 +3,7 @@
 package pcre
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -289,4 +290,29 @@ func TestFreeRegexp(t *testing.T) {
 	re.FreeRegexp()
 	// Check that double calls don't fail.
 	re.FreeRegexp()
+}
+
+func TestFindAll(t *testing.T) {
+	re := MustCompile("\\d{2}x", 0)
+	defer re.FreeRegexp()
+	data := "12x 12332xf 43bx62x"
+	expected := []Match{
+		Match{"12x", []int{0, 3}},
+		Match{"32x", []int{7, 10}},
+		Match{"62x", []int{16, 19}},
+	}
+	matches := re.FindAll(data, 0)
+	if len(matches) != 3 {
+		t.Error("Expected exactly 3 matches")
+	}
+	for i := 0; i < len(expected); i++ {
+		if !reflect.DeepEqual(matches[i], expected[i]) {
+			t.Error("Expected match: ", expected[i])
+		}
+	}
+
+	matches = re.FindAll("", 0)
+	if len(matches) != 0 {
+		t.Error("Expected no results, got: ", matches)
+	}
 }

@@ -602,6 +602,37 @@ func (re Regexp) ReplaceAllString(in, repl string, flags int) string {
 	return string(re.ReplaceAll([]byte(in), []byte(repl), flags))
 }
 
+// Match holds details about a single successful regex match.
+type Match struct {
+	Finding string // Text that was found.
+	Loc     []int  // Index bounds for location of finding.
+}
+
+// FindAll finds all instances that match the regex.
+func (re Regexp) FindAll(subject string, flags int) []Match {
+	matches := make([]Match, 0)
+	m := re.MatcherString(subject, flags)
+	offset := 0
+	for m.Matches() {
+		leftIdx := int(m.ovector[0]) + offset
+		rightIdx := int(m.ovector[1]) + offset
+		matches = append(
+			matches,
+			Match{
+				subject[leftIdx:rightIdx],
+				[]int{leftIdx, rightIdx},
+			},
+		)
+		offset += int(m.ovector[1])
+		if offset < len(subject) {
+			m.MatchString(subject[offset:], flags)
+		} else {
+			break
+		}
+	}
+	return matches
+}
+
 // CompileError holds details about a compilation error,
 // as returned by the Compile function.  The offset is
 // the byte position in the pattern string at which the

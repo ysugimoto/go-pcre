@@ -19,6 +19,15 @@ this package as follows to allow automatic downloading:
 
     import "github.com/gijsbers/go-pcre"
 
+## Upgrading
+
+To upgrade static libraries, run the following on the pcre source code.
+
+   ./configure --enable-jit --disable-shared
+   make
+
+The static library will be in `./lib/libpcre.a`
+
 ## History
 
 This is a clone of

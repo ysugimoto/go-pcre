@@ -288,8 +288,6 @@ func TestFreeRegexp(t *testing.T) {
 		}
 	}
 	re.FreeRegexp()
-	// Check that double calls don't fail.
-	re.FreeRegexp()
 }
 
 func TestFindAll(t *testing.T) {

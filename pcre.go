@@ -53,7 +53,6 @@
 // http://www.pcre.org/pcre.txt
 package pcre
 
-// #cgo LDFLAGS: ${SRCDIR}/libpcre.a
 // #include <string.h>
 // #include "./pcre.h"
 // #include "./pcre_fallback.h"

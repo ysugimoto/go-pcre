@@ -3,6 +3,7 @@
 package pcre
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -144,7 +145,7 @@ func TestMatcher(t *testing.T) {
 
 func TestPartial(t *testing.T) {
 	re := MustCompile(`^abc`, 0)
-
+	defer re.FreeRegexp()
 	// Check we get a partial match when we should
 	m := re.MatcherString("ab", PARTIAL_SOFT)
 	if !m.Matches() {
@@ -177,11 +178,15 @@ func TestPartial(t *testing.T) {
 }
 
 func TestCaseless(t *testing.T) {
-	m := MustCompile("abc", CASELESS).MatcherString("...Abc...", 0)
+	re := MustCompile("abc", CASELESS)
+	defer re.FreeRegexp()
+	m := re.MatcherString("...Abc...", 0)
 	if !m.Matches() {
 		t.Error("CASELESS")
 	}
-	m = MustCompile("abc", 0).MatcherString("Abc", 0)
+	re2 := MustCompile("abc", 0)
+	defer re2.FreeRegexp()
+	m = re2.MatcherString("Abc", 0)
 	if m.Matches() {
 		t.Error("!CASELESS")
 	}
@@ -189,7 +194,9 @@ func TestCaseless(t *testing.T) {
 
 func TestNamed(t *testing.T) {
 	pattern := "(?<L>a)(?<M>X)*bc(?<DIGITS>\\d*)"
-	m := MustCompile(pattern, 0).MatcherString("abc12", 0)
+	re := MustCompile(pattern, 0)
+	defer re.FreeRegexp()
+	m := re.MatcherString("abc12", 0)
 	if !m.Matches() {
 		t.Error("Matches")
 	}
@@ -208,7 +215,9 @@ func TestNamed(t *testing.T) {
 }
 
 func TestMatcherIndex(t *testing.T) {
-	m := MustCompile("bcd", 0).Matcher([]byte("abcdef"), 0)
+	re := MustCompile("bcd", 0)
+	defer re.FreeRegexp()
+	m := re.Matcher([]byte("abcdef"), 0)
 	i := m.Index()
 	if i[0] != 1 {
 		t.Error("FindIndex start", i[0])
@@ -216,8 +225,9 @@ func TestMatcherIndex(t *testing.T) {
 	if i[1] != 4 {
 		t.Error("FindIndex end", i[1])
 	}
-
-	m = MustCompile("xyz", 0).Matcher([]byte("abcdef"), 0)
+	re2 := MustCompile("xyz", 0)
+	defer re2.FreeRegexp()
+	m = re2.Matcher([]byte("abcdef"), 0)
 	i = m.Index()
 	if i != nil {
 		t.Error("Index returned for non-match", i)
@@ -226,6 +236,7 @@ func TestMatcherIndex(t *testing.T) {
 
 func TestFindIndex(t *testing.T) {
 	re := MustCompile("bcd", 0)
+	defer re.FreeRegexp()
 	i := re.FindIndex([]byte("abcdef"), 0)
 	if i[0] != 1 {
 		t.Error("FindIndex start", i[0])
@@ -237,6 +248,7 @@ func TestFindIndex(t *testing.T) {
 
 func TestExtract(t *testing.T) {
 	re := MustCompile("b(c)(d)", 0)
+	defer re.FreeRegexp()
 	m := re.MatcherString("abcdef", 0)
 	i := m.ExtractString()
 	if i[0] != "abcdef" {
@@ -252,6 +264,7 @@ func TestExtract(t *testing.T) {
 
 func TestReplaceAll(t *testing.T) {
 	re := MustCompile("foo", 0)
+	defer re.FreeRegexp()
 	// Don't change at ends.
 	result := re.ReplaceAll([]byte("I like foods."), []byte("car"), 0)
 	if string(result) != "I like cards." {
@@ -261,5 +274,45 @@ func TestReplaceAll(t *testing.T) {
 	result = re.ReplaceAll([]byte("food fight fools foo"), []byte("car"), 0)
 	if string(result) != "card fight carls car" {
 		t.Error("ReplaceAll2", result)
+	}
+}
+
+func TestFreeRegexp(t *testing.T) {
+	re := MustCompileJIT("\\d{3}", 0, STUDY_JIT_COMPILE)
+	data := []string{"15asd213", "sadi32fjoi"}
+	expected := []bool{true, false}
+	for i := 0; i < len(data); i++ {
+		m := re.MatcherString(data[i], 0)
+		if m.Matches() != expected[i] {
+			t.Error("Unexpected match for ", data[i])
+		}
+	}
+	re.FreeRegexp()
+	// Check that double calls don't fail.
+	re.FreeRegexp()
+}
+
+func TestFindAll(t *testing.T) {
+	re := MustCompile("\\d{2}x", 0)
+	defer re.FreeRegexp()
+	data := "12x 12332xf 43bx62x"
+	expected := []Match{
+		Match{"12x", []int{0, 3}},
+		Match{"32x", []int{7, 10}},
+		Match{"62x", []int{16, 19}},
+	}
+	matches := re.FindAll(data, 0)
+	if len(matches) != 3 {
+		t.Error("Expected exactly 3 matches")
+	}
+	for i := 0; i < len(expected); i++ {
+		if !reflect.DeepEqual(matches[i], expected[i]) {
+			t.Error("Expected match: ", expected[i])
+		}
+	}
+
+	matches = re.FindAll("", 0)
+	if len(matches) != 0 {
+		t.Error("Expected no results, got: ", matches)
 	}
 }

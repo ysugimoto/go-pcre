@@ -288,6 +288,9 @@ func TestFreeRegexp(t *testing.T) {
 		}
 	}
 	re.FreeRegexp()
+
+	// Test double free.
+	re.FreeRegexp()
 }
 
 func TestFindAll(t *testing.T) {

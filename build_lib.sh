@@ -1,7 +1,7 @@
 #!/bin/bash
-TEMP=$(mktemp -d pcre.XXXXXX --tmpdir)
+TEMP=$(mktemp -d)
 SRC="pcre-8.42"
-echo "Using temp directory $TEMP"
+echo "Using temp directory $TEMP to build $SRC"
 (
   cd "$TEMP"
   wget -qN --show-progress "https://ftp.pcre.org/pub/pcre/$SRC.tar.gz"

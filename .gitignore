@@ -1,7 +1,8 @@
-*.o
-[0-9].out
 *.[0-9]
 *.cgo?.*
+*.o
+.DS_Store
+[0-9].out
 _cgo_*
 _obj
 _test

@@ -21,12 +21,22 @@ this package as follows to allow automatic downloading:
 
 ## Upgrading
 
-To upgrade static libraries, run the following on the pcre source code.
+To upgrade static libraries, run the following script on Linux and Mac to create the necessary static libs.
 
-   ./configure --enable-jit --disable-shared
-   make
+   ./build_lib.sh
 
-The static library will be in `./lib/libpcre.a`
+The static library will be either `libpcre_darwin.a` or `libpcre_linux.a`
+
+The library is compiled with the following options:
+```
+--enable-jit
+--enable-utf
+--disable-shared
+--disable-cpp
+--enable-newline-is-any
+--with-match-limit=500000
+--with-match-limit-recursion=50000
+```
 
 ## History
 

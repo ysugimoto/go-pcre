@@ -62,6 +62,7 @@ package pcre
 import "C"
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"unsafe"
@@ -270,6 +271,7 @@ type Matcher struct {
 	partial  bool    // was the last match a partial match?
 	subjects string  // one of these fields is set to record the subject,
 	subjectb []byte  // so that Group/GroupString can return slices
+	err      error
 }
 
 // NewMatcher creates a new matcher object for the given Regexp.
@@ -293,6 +295,7 @@ func (re Regexp) MatcherString(subject string, flags int) (m *Matcher) {
 	m = re.NewMatcher()
 	m.MatchString(subject, flags)
 	return
+
 }
 
 // Reset switches the matcher object to the specified regexp and subject.
@@ -315,6 +318,7 @@ func (m *Matcher) Init(re *Regexp) {
 		panic("Matcher.Init: uninitialized")
 	}
 	m.matches = false
+	m.err = nil
 	if m.re.ptr != nil && m.re.ptr == re.ptr {
 		// Skip group count extraction if the matcher has
 		// already been initialized with the same regular
@@ -333,12 +337,16 @@ var nullbyte = []byte{0}
 // Match tries to match the specified byte slice to
 // the current pattern by calling Exec and collects the result.
 // Returns true if the match succeeds.
+// Match is a no-op if err is not nil.
 func (m *Matcher) Match(subject []byte, flags int) bool {
+	if m.err != nil {
+		return false
+	}
 	if m.re.ptr == nil {
 		panic("Matcher.Match: uninitialized")
 	}
 	rc := m.Exec(subject, flags)
-	m.matches = matched(rc)
+	m.matches, m.err = matched(rc)
 	m.partial = (rc == ERROR_PARTIAL)
 	return m.matches
 }
@@ -347,11 +355,14 @@ func (m *Matcher) Match(subject []byte, flags int) bool {
 // the current pattern by calling ExecString and collects the result.
 // Returns true if the match succeeds.
 func (m *Matcher) MatchString(subject string, flags int) bool {
+	if m.err != nil {
+		return false
+	}
 	if m.re.ptr == nil {
 		panic("Matcher.MatchString: uninitialized")
 	}
 	rc := m.ExecString(subject, flags)
-	m.matches = matched(rc)
+	m.matches, m.err = matched(rc)
 	m.partial = (rc == ERROR_PARTIAL)
 	return m.matches
 }
@@ -397,16 +408,19 @@ func (m *Matcher) exec(subjectptr *C.char, length, flags int) int {
 }
 
 // matched checks the return code of a pattern match for success.
-func matched(rc int) bool {
+func matched(rc int) (bool, error) {
 	switch {
 	case rc >= 0 || rc == C.PCRE_ERROR_PARTIAL:
-		return true
+		return true, nil
 	case rc == C.PCRE_ERROR_NOMATCH:
-		return false
+		return false, nil
 	case rc == C.PCRE_ERROR_BADOPTION:
 		panic("PCRE.Match: invalid option flag")
 	}
-	panic("unexpected return code from pcre_exec: " + strconv.Itoa(rc))
+	err := errors.New(
+		"unexpected return code from pcre_exec: " + strconv.Itoa(rc),
+	)
+	return false, err
 }
 
 // Matches returns true if a previous call to Matcher, MatcherString, Reset,
@@ -587,7 +601,7 @@ func (re *Regexp) FindIndex(bytes []byte, flags int) (loc []int) {
 
 // ReplaceAll returns a copy of a byte slice
 // where all pattern matches are replaced by repl.
-func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
+func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) ([]byte, error) {
 	m := re.Matcher(bytes, flags)
 	r := []byte{}
 	for m.matches {
@@ -595,12 +609,13 @@ func (re Regexp) ReplaceAll(bytes, repl []byte, flags int) []byte {
 		bytes = bytes[m.ovector[1]:]
 		m.Match(bytes, flags)
 	}
-	return append(r, bytes...)
+	return append(r, bytes...), m.err
 }
 
 // ReplaceAllString is equivalent to ReplaceAll with string return type.
-func (re Regexp) ReplaceAllString(in, repl string, flags int) string {
-	return string(re.ReplaceAll([]byte(in), []byte(repl), flags))
+func (re Regexp) ReplaceAllString(in, repl string, flags int) (string, error) {
+	str, err := re.ReplaceAll([]byte(in), []byte(repl), flags)
+	return string(str), err
 }
 
 // Match holds details about a single successful regex match.
@@ -610,7 +625,7 @@ type Match struct {
 }
 
 // FindAll finds all instances that match the regex.
-func (re Regexp) FindAll(subject string, flags int) []Match {
+func (re Regexp) FindAll(subject string, flags int) ([]Match, error) {
 	matches := make([]Match, 0)
 	m := re.MatcherString(subject, flags)
 	offset := 0
@@ -631,7 +646,7 @@ func (re Regexp) FindAll(subject string, flags int) []Match {
 			break
 		}
 	}
-	return matches
+	return matches, m.err
 }
 
 // CompileError holds details about a compilation error,

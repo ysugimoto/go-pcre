@@ -415,7 +415,7 @@ func matched(rc int) (bool, error) {
 	case rc == C.PCRE_ERROR_NOMATCH:
 		return false, nil
 	case rc == C.PCRE_ERROR_BADOPTION:
-		panic("PCRE.Match: invalid option flag")
+		return false, errors.New("PCRE.Match: invalid option flag")
 	}
 	err := errors.New(
 		"unexpected return code from pcre_exec: " + strconv.Itoa(rc),

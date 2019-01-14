@@ -264,14 +264,28 @@ func TestExtract(t *testing.T) {
 
 func TestReplaceAll(t *testing.T) {
 	re := MustCompile("foo", 0)
+	var result []byte
+	var err error
 	defer re.FreeRegexp()
 	// Don't change at ends.
-	result := re.ReplaceAll([]byte("I like foods."), []byte("car"), 0)
+	if result, err = re.ReplaceAll(
+		[]byte("I like foods."),
+		[]byte("car"),
+		0,
+	); err != nil {
+		t.Fatal(err)
+	}
 	if string(result) != "I like cards." {
 		t.Error("ReplaceAll", result)
 	}
 	// Change at ends.
-	result = re.ReplaceAll([]byte("food fight fools foo"), []byte("car"), 0)
+	if result, err = re.ReplaceAll(
+		[]byte("food fight fools foo"),
+		[]byte("car"),
+		0,
+	); err != nil {
+		t.Fatal(err)
+	}
 	if string(result) != "card fight carls car" {
 		t.Error("ReplaceAll2", result)
 	}
@@ -295,6 +309,8 @@ func TestFreeRegexp(t *testing.T) {
 
 func TestFindAll(t *testing.T) {
 	re := MustCompile("\\d{2}x", 0)
+	var matches []Match
+	var err error
 	defer re.FreeRegexp()
 	data := "12x 12332xf 43bx62x"
 	expected := []Match{
@@ -302,7 +318,9 @@ func TestFindAll(t *testing.T) {
 		Match{"32x", []int{7, 10}},
 		Match{"62x", []int{16, 19}},
 	}
-	matches := re.FindAll(data, 0)
+	if matches, err = re.FindAll(data, 0); err != nil {
+		t.Fatal(err)
+	}
 	if len(matches) != 3 {
 		t.Error("Expected exactly 3 matches")
 	}
@@ -312,7 +330,9 @@ func TestFindAll(t *testing.T) {
 		}
 	}
 
-	matches = re.FindAll("", 0)
+	if matches, err = re.FindAll("", 0); err != nil {
+		t.Fatal(err)
+	}
 	if len(matches) != 0 {
 		t.Error("Expected no results, got: ", matches)
 	}

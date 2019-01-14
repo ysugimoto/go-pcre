@@ -332,6 +332,11 @@ func (m *Matcher) Init(re *Regexp) {
 	}
 }
 
+// Err returns first error encountered by Matcher.
+func (m *Matcher) Err() error {
+	return m.err
+}
+
 var nullbyte = []byte{0}
 
 // Match tries to match the specified byte slice to

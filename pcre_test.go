@@ -321,19 +321,38 @@ func TestFindAll(t *testing.T) {
 	if matches, err = re.FindAll(data, 0); err != nil {
 		t.Fatal(err)
 	}
-	if len(matches) != 3 {
-		t.Error("Expected exactly 3 matches")
-	}
-	for i := 0; i < len(expected); i++ {
-		if !reflect.DeepEqual(matches[i], expected[i]) {
-			t.Error("Expected match: ", expected[i])
-		}
-	}
+	verifyMatches(t, expected, matches)
 
 	if matches, err = re.FindAll("", 0); err != nil {
 		t.Fatal(err)
 	}
 	if len(matches) != 0 {
 		t.Error("Expected no results, got: ", matches)
+	}
+
+	// Test zero-length matches.
+	re2 := MustCompile("\\w*", 0)
+	defer re2.FreeRegexp()
+	data = "cat dog"
+	expected = []Match{
+		Match{"cat", []int{0, 3}},
+		Match{"", []int{3, 3}},
+		Match{"dog", []int{4, 7}},
+	}
+	matches, err = re2.FindAll(data, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	verifyMatches(t, expected, matches)
+}
+
+func verifyMatches(t *testing.T, expected []Match, matches []Match) {
+	if len(matches) != len(expected) {
+		t.Errorf("Expected %d matches, got: %d", len(expected), len(matches))
+	}
+	for i := 0; i < len(expected); i++ {
+		if !reflect.DeepEqual(matches[i], expected[i]) {
+			t.Errorf("Expected match: %v, got: %v", expected[i], matches[i])
+		}
 	}
 }

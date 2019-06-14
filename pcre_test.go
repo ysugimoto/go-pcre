@@ -344,7 +344,6 @@ func TestFindAll(t *testing.T) {
 		t.Fatal(err)
 	}
 	verifyMatches(t, expected, matches)
-
 }
 
 func verifyMatches(t *testing.T, expected []Match, matches []Match) {

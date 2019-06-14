@@ -644,7 +644,7 @@ func (re Regexp) FindAll(subject string, flags int) ([]Match, error) {
 				[]int{leftIdx, rightIdx},
 			},
 		)
-		offset += int(m.ovector[1])
+		offset += maxInt(1, int(m.ovector[1]))
 		if offset < len(subject) {
 			m.MatchString(subject[offset:], flags)
 		} else {
@@ -667,4 +667,12 @@ type CompileError struct {
 // Error converts a compile error to a string
 func (e *CompileError) Error() string {
 	return e.Pattern + " (" + strconv.Itoa(e.Offset) + "): " + e.Message
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
 }

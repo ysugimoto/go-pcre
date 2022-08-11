@@ -1,23 +1,24 @@
 # go-pcre
 
-[![GoDoc](https://godoc.org/github.com/gijsbers/go-pcre?status.svg)](https://godoc.org/github.com/gijsbers/go-pcre)
-
 This is a Go language package providing support for
 Perl Compatible Regular Expressions (PCRE).
 
+forked from https://github.com/rubrikinc/go-pcre and support M1 mac (arm64).
+
 ## Installation
 
-Install the package for Debian as follows:
-
-    sudo apt-get install libpcre++-dev
-    go get github.com/gijsbers/go-pcre
+```
+$ go get github.com/ysugimoto/go-pcre
+```
 
 ## Usage
 
 Go programs that depend on this package should import
 this package as follows to allow automatic downloading:
 
-    import "github.com/gijsbers/go-pcre"
+```go
+import "github.com/ysugimoto/go-pcre"
+```
 
 ## Upgrading
 
@@ -25,7 +26,7 @@ To upgrade static libraries, run the following script on Linux and Mac to create
 
    ./build_lib.sh
 
-The static library will be either `libpcre_darwin.a` or `libpcre_linux.a`
+The static library will be either `libpcre_darwin_x86_64.a`, `libpcre_darwin_arm64.a`, or `libpcre_linux_x86_64.a`
 
 The library is compiled with the following options:
 ```

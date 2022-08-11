@@ -1,10 +1,10 @@
 #!/bin/bash
 TEMP=$(mktemp -d)
-SRC="pcre-8.42"
+SRC="pcre-8.45"
 echo "Using temp directory $TEMP to build $SRC"
 (
   cd "$TEMP"
-  wget -qN --show-progress "https://ftp.pcre.org/pub/pcre/$SRC.tar.gz"
+  wget -qN --show-progress -O ${SRC}.tar.gz "https://ja.osdn.net/frs/g_redir.php?m=rwthaachen&f=pcre%2Fpcre%2F8.45%2F${SRC}.tar.gz"
   tar -xf "$SRC.tar.gz"
   (
     cd "$SRC"
@@ -20,9 +20,12 @@ echo "Using temp directory $TEMP to build $SRC"
   )
 )
 PLATFORM="$(uname -s)"
-case "${PLATFORM}" in
-  Linux*)  OUTPUT=libpcre_linux.a;;
-  Darwin*) OUTPUT=libpcre_darwin.a;;
+ARCH="$(uname -m)"
+
+case "${PLATFORM}_${ARCH}" in
+  Linux_x86_64*)  OUTPUT=libpcre_linux_x86_64.a;;
+  Darwin_x86_64*) OUTPUT=libpcre_darwin_x86_64.a;;
+  Darwin_arm64*) OUTPUT=libpcre_darwin_arm64.a;;
   *)       OUTPUT=libpcre.a
 esac
 cp "$TEMP/$SRC/.libs/libpcre.a" "$OUTPUT"
